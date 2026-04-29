@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+body {
+  background-color: #f5f6f6;
+  font-family: 'Montserrat', sans-serif;
+  font-size: 14px;
+  margin: 0;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+}
+
+/* Table styles */
+.table {
+  font-size: 13px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+thead th {
+  font-weight: 600;
+  font-size: 13px;
+  background-color: #f0f1f1;
+  border-bottom: 2px solid #dee2e6 !important;
+}
+
+tbody td {
+  font-weight: 400;
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+tbody th {
+  vertical-align: middle;
+  font-weight: 500;
+}
+
+.table-card {
+  background: #f8f8f8;
+}
+
+.table-card .card-header {
+  background: #f8f8f8;
+}
+
+.table-card .card-footer {
+  background: #f8f8f8;
+  border-top: 1px solid #e9ecef;
+}
+
+/* Avatar */
+.user-avatar {
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+  border: 2px solid #e9ecef;
+}
+
+/* Gender badges */
+.bg-pink {
+  background-color: #fce4ec;
+  color: #c2185b;
+}
+
+/* Pagination */
+.page-item.active .page-link {
+  border-radius: 5px;
+}
+
+.page-link {
+  border-radius: 5px;
+  font-size: 13px;
+}
+
+/* Modals */
+.modal.show.d-block {
+  background: transparent;
+}
+
+/* Filters */
+.form-label.small {
+  font-size: 12px;
+}
