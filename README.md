@@ -228,7 +228,7 @@ React (Vite)
 AWS API Gateway  (us-east-1)
     │
     ▼
-AWS Lambda (.NET 10)
+AWS Lambda (.NET 8)
     │
     ▼
 AWS Aurora PostgreSQL  (us-east-2)
@@ -240,7 +240,7 @@ AWS Aurora PostgreSQL  (us-east-2)
 | Capa | Tecnología |
 |------|-----------|
 | Frontend | React 18 + Vite + Bootstrap 5 |
-| Backend | .NET 10 — AWS Lambda |
+| Backend | .NET 8 — AWS Lambda |
 | API | AWS API Gateway (REST) |
 | Base de datos | AWS Aurora PostgreSQL |
 | Infraestructura | AWS SAM — stack `awsserverless-casas` |
