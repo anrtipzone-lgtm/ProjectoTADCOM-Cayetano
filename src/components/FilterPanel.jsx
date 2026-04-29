@@ -1,35 +1,27 @@
 import { useState } from 'react';
 
-const NATIONALITIES = [
-  { value: 'US', label: 'United States' },
-  { value: 'AU', label: 'Australia' },
-  { value: 'BR', label: 'Brazil' },
-  { value: 'CH', label: 'Switzerland' },
-  { value: 'ES', label: 'Spain' },
-  { value: 'FR', label: 'France' },
-  { value: 'GB', label: 'United Kingdom' },
-  { value: 'MX', label: 'Mexico' },
-];
-
-const GENDERS = [
-  { value: 'female', label: 'Female' },
-  { value: 'male', label: 'Male' },
+const TIPOS_CASA = [
+  { value: 'Casa', label: 'Casa' },
+  { value: 'Departamento', label: 'Departamento' },
+  { value: 'Oficina', label: 'Oficina' },
+  { value: 'Local Comercial', label: 'Local Comercial' },
+  { value: 'Terreno', label: 'Terreno' },
 ];
 
 export default function FilterPanel({ onApply }) {
-  const [nat, setNat] = useState('');
-  const [gender, setGender] = useState('');
+  const [distrito, setDistrito] = useState('');
+  const [tipoCasa, setTipoCasa] = useState('');
   const [open, setOpen] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onApply({ nat, gender });
+    onApply({ distrito, tipoCasa });
   };
 
   const handleReset = () => {
-    setNat('');
-    setGender('');
-    onApply({ nat: '', gender: '' });
+    setDistrito('');
+    setTipoCasa('');
+    onApply({ distrito: '', tipoCasa: '' });
   };
 
   return (
@@ -53,36 +45,31 @@ export default function FilterPanel({ onApply }) {
             <form onSubmit={handleSubmit} noValidate>
               <div className="row py-2 align-items-end g-3">
                 <div className="col-sm-12 col-lg-4">
-                  <label htmlFor="filter-nat" className="form-label small fw-semibold mb-1">
-                    Nacionalidad
+                  <label htmlFor="filter-distrito" className="form-label small fw-semibold mb-1">
+                    Distrito
                   </label>
-                  <select
-                    id="filter-nat"
-                    className="form-select form-select-sm"
-                    value={nat}
-                    onChange={(e) => setNat(e.target.value)}
-                  >
-                    <option value="">Todas</option>
-                    {NATIONALITIES.map(({ value, label }) => (
-                      <option key={value} value={value}>
-                        {label}
-                      </option>
-                    ))}
-                  </select>
+                  <input
+                    id="filter-distrito"
+                    type="text"
+                    className="form-control form-control-sm"
+                    placeholder="Ej: Lima, Miraflores..."
+                    value={distrito}
+                    onChange={(e) => setDistrito(e.target.value)}
+                  />
                 </div>
 
                 <div className="col-sm-12 col-lg-4">
-                  <label htmlFor="filter-gender" className="form-label small fw-semibold mb-1">
-                    Género
+                  <label htmlFor="filter-tipo" className="form-label small fw-semibold mb-1">
+                    Tipo de propiedad
                   </label>
                   <select
-                    id="filter-gender"
+                    id="filter-tipo"
                     className="form-select form-select-sm"
-                    value={gender}
-                    onChange={(e) => setGender(e.target.value)}
+                    value={tipoCasa}
+                    onChange={(e) => setTipoCasa(e.target.value)}
                   >
                     <option value="">Todos</option>
-                    {GENDERS.map(({ value, label }) => (
+                    {TIPOS_CASA.map(({ value, label }) => (
                       <option key={value} value={value}>
                         {label}
                       </option>

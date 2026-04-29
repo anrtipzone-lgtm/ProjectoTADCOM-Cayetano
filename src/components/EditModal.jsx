@@ -1,46 +1,60 @@
 import { useEffect, useRef, useState } from 'react';
 
-const REQUIRED_FIELDS = ['name', 'address', 'phone', 'email', 'country'];
+const TIPOS_CASA = ['Casa', 'Departamento', 'Oficina', 'Local Comercial', 'Terreno'];
 
 function validate(data) {
   const errors = {};
-  if (!data.name.trim()) errors.name = 'El nombre es obligatorio.';
-  if (!data.address.trim()) errors.address = 'La dirección es obligatoria.';
-  if (!data.phone.trim()) errors.phone = 'El teléfono es obligatorio.';
-  if (!data.email.trim()) {
-    errors.email = 'El correo es obligatorio.';
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-    errors.email = 'Ingrese un correo electrónico válido.';
-  }
-  if (!data.country.trim()) errors.country = 'El país es obligatorio.';
+  if (!data.direccion.trim()) errors.direccion = 'La dirección es obligatoria.';
+  if (!data.distrito.trim()) errors.distrito = 'El distrito es obligatorio.';
+  if (!data.tipoCasa) errors.tipoCasa = 'El tipo de propiedad es obligatorio.';
+  if (!data.numeroHabitaciones || data.numeroHabitaciones < 0)
+    errors.numeroHabitaciones = 'Ingrese un número válido de habitaciones.';
+  if (!data.areaM2 || data.areaM2 <= 0) errors.areaM2 = 'El área debe ser mayor a 0.';
+  if (!data.precio || data.precio <= 0) errors.precio = 'El precio debe ser mayor a 0.';
   return errors;
 }
 
-export default function EditModal({ user, onSave, onClose }) {
-  const [form, setForm] = useState({ name: '', gender: 'Female', address: '', phone: '', email: '', country: '' });
+export default function EditModal({ user: casa, onSave, onClose, saving, isNew = false }) {
+  const [form, setForm] = useState({
+    direccion: '',
+    distrito: '',
+    tipoCasa: 'Casa',
+    numeroHabitaciones: 1,
+    areaM2: 0,
+    precio: 0,
+    descripcion: '',
+    activo: true,
+  });
   const [errors, setErrors] = useState({});
   const firstInputRef = useRef(null);
 
   useEffect(() => {
-    if (user) {
+    if (isNew) {
+      setForm({ direccion: '', distrito: '', tipoCasa: 'Casa', numeroHabitaciones: 1, areaM2: 0, precio: 0, descripcion: '', activo: true });
+      setErrors({});
+      setTimeout(() => firstInputRef.current?.focus(), 50);
+    } else if (casa) {
       setForm({
-        name: user.name,
-        gender: user.gender,
-        address: user.address,
-        phone: user.phone,
-        email: user.email,
-        country: user.country,
+        direccion: casa.direccion,
+        distrito: casa.distrito,
+        tipoCasa: casa.tipoCasa,
+        numeroHabitaciones: casa.numeroHabitaciones,
+        areaM2: casa.areaM2,
+        precio: casa.precio,
+        descripcion: casa.descripcion ?? '',
+        activo: casa.activo,
       });
       setErrors({});
       setTimeout(() => firstInputRef.current?.focus(), 50);
     }
-  }, [user]);
+  }, [casa, isNew]);
 
-  if (!user) return null;
+  if (!isNew && !casa) return null;
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    const parsed = type === 'checkbox' ? checked : type === 'number' ? Number(value) : value;
+    setForm((prev) => ({ ...prev, [name]: parsed }));
     if (errors[name]) setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
@@ -51,7 +65,7 @@ export default function EditModal({ user, onSave, onClose }) {
       setErrors(validationErrors);
       return;
     }
-    onSave({ ...user, ...form });
+    onSave(isNew ? { ...form } : { ...casa, ...form });
   };
 
   return (
@@ -61,132 +75,151 @@ export default function EditModal({ user, onSave, onClose }) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="editModalLabel"
-      onClick={(e) => e.target === e.currentTarget && onClose()}
+      onClick={(e) => e.target === e.currentTarget && !saving && onClose()}
     >
       <div className="modal-dialog modal-dialog-centered modal-lg">
         <div className="modal-content">
           <div className="modal-header">
             <h5 className="modal-title" id="editModalLabel">
-              <i className="bi bi-pencil-square me-2" aria-hidden="true"></i>
-              Editar Usuario
+              <i className={`bi ${isNew ? 'bi-plus-circle' : 'bi-pencil-square'} me-2`} aria-hidden="true"></i>
+              {isNew ? 'Nueva Propiedad' : 'Editar Propiedad'}
             </h5>
-            <button type="button" className="btn-close" onClick={onClose} aria-label="Cerrar modal" />
+            <button type="button" className="btn-close" onClick={onClose} aria-label="Cerrar modal" disabled={saving} />
           </div>
 
           <form onSubmit={handleSubmit} noValidate>
             <div className="modal-body">
-              <div className="d-flex align-items-center mb-4">
-                <img src={user.picture} alt={`Foto de ${user.name}`} className="user-avatar me-3" style={{ width: 56, height: 56 }} />
-                <div>
-                  <div className="fw-semibold">{user.name}</div>
-                  <small className="text-muted">{user.email}</small>
-                </div>
-              </div>
-
               <div className="row g-3">
-                <div className="col-sm-12 col-md-6">
-                  <label htmlFor="edit-name" className="form-label">
-                    Nombre <span aria-hidden="true" className="text-danger">*</span>
+                <div className="col-sm-12 col-md-8">
+                  <label htmlFor="edit-direccion" className="form-label">
+                    Dirección <span aria-hidden="true" className="text-danger">*</span>
                   </label>
                   <input
                     ref={firstInputRef}
                     type="text"
-                    id="edit-name"
-                    name="name"
-                    className={`form-control ${errors.name ? 'is-invalid' : ''}`}
-                    value={form.name}
+                    id="edit-direccion"
+                    name="direccion"
+                    className={`form-control ${errors.direccion ? 'is-invalid' : ''}`}
+                    value={form.direccion}
                     onChange={handleChange}
                     required
-                    aria-required="true"
-                    aria-describedby={errors.name ? 'err-name' : undefined}
                   />
-                  {errors.name && <div id="err-name" className="invalid-feedback">{errors.name}</div>}
+                  {errors.direccion && <div className="invalid-feedback">{errors.direccion}</div>}
                 </div>
 
-                <div className="col-sm-12 col-md-6">
-                  <label htmlFor="edit-gender" className="form-label">Género</label>
+                <div className="col-sm-12 col-md-4">
+                  <label htmlFor="edit-distrito" className="form-label">
+                    Distrito <span aria-hidden="true" className="text-danger">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    id="edit-distrito"
+                    name="distrito"
+                    className={`form-control ${errors.distrito ? 'is-invalid' : ''}`}
+                    value={form.distrito}
+                    onChange={handleChange}
+                    required
+                  />
+                  {errors.distrito && <div className="invalid-feedback">{errors.distrito}</div>}
+                </div>
+
+                <div className="col-sm-12 col-md-4">
+                  <label htmlFor="edit-tipo" className="form-label">
+                    Tipo <span aria-hidden="true" className="text-danger">*</span>
+                  </label>
                   <select
-                    id="edit-gender"
-                    name="gender"
-                    className="form-select"
-                    value={form.gender}
+                    id="edit-tipo"
+                    name="tipoCasa"
+                    className={`form-select ${errors.tipoCasa ? 'is-invalid' : ''}`}
+                    value={form.tipoCasa}
                     onChange={handleChange}
                   >
-                    <option value="Female">Female</option>
-                    <option value="Male">Male</option>
+                    {TIPOS_CASA.map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
                   </select>
+                  {errors.tipoCasa && <div className="invalid-feedback">{errors.tipoCasa}</div>}
+                </div>
+
+                <div className="col-sm-12 col-md-4">
+                  <label htmlFor="edit-habitaciones" className="form-label">
+                    Habitaciones <span aria-hidden="true" className="text-danger">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    id="edit-habitaciones"
+                    name="numeroHabitaciones"
+                    min="0"
+                    className={`form-control ${errors.numeroHabitaciones ? 'is-invalid' : ''}`}
+                    value={form.numeroHabitaciones}
+                    onChange={handleChange}
+                    required
+                  />
+                  {errors.numeroHabitaciones && <div className="invalid-feedback">{errors.numeroHabitaciones}</div>}
+                </div>
+
+                <div className="col-sm-12 col-md-4">
+                  <label htmlFor="edit-area" className="form-label">
+                    Área (m²) <span aria-hidden="true" className="text-danger">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    id="edit-area"
+                    name="areaM2"
+                    min="0"
+                    step="0.01"
+                    className={`form-control ${errors.areaM2 ? 'is-invalid' : ''}`}
+                    value={form.areaM2}
+                    onChange={handleChange}
+                    required
+                  />
+                  {errors.areaM2 && <div className="invalid-feedback">{errors.areaM2}</div>}
                 </div>
 
                 <div className="col-sm-12 col-md-6">
-                  <label htmlFor="edit-address" className="form-label">
-                    Dirección <span aria-hidden="true" className="text-danger">*</span>
+                  <label htmlFor="edit-precio" className="form-label">
+                    Precio (S/.) <span aria-hidden="true" className="text-danger">*</span>
                   </label>
                   <input
-                    type="text"
-                    id="edit-address"
-                    name="address"
-                    className={`form-control ${errors.address ? 'is-invalid' : ''}`}
-                    value={form.address}
+                    type="number"
+                    id="edit-precio"
+                    name="precio"
+                    min="0"
+                    step="0.01"
+                    className={`form-control ${errors.precio ? 'is-invalid' : ''}`}
+                    value={form.precio}
                     onChange={handleChange}
                     required
-                    aria-required="true"
-                    aria-describedby={errors.address ? 'err-address' : undefined}
                   />
-                  {errors.address && <div id="err-address" className="invalid-feedback">{errors.address}</div>}
+                  {errors.precio && <div className="invalid-feedback">{errors.precio}</div>}
                 </div>
 
-                <div className="col-sm-12 col-md-6">
-                  <label htmlFor="edit-phone" className="form-label">
-                    Teléfono <span aria-hidden="true" className="text-danger">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    id="edit-phone"
-                    name="phone"
-                    className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
-                    value={form.phone}
-                    onChange={handleChange}
-                    required
-                    aria-required="true"
-                    aria-describedby={errors.phone ? 'err-phone' : undefined}
-                  />
-                  {errors.phone && <div id="err-phone" className="invalid-feedback">{errors.phone}</div>}
+                <div className="col-sm-12 col-md-6 d-flex align-items-end pb-1">
+                  <div className="form-check">
+                    <input
+                      className="form-check-input"
+                      type="checkbox"
+                      id="edit-activo"
+                      name="activo"
+                      checked={form.activo}
+                      onChange={handleChange}
+                    />
+                    <label className="form-check-label" htmlFor="edit-activo">
+                      Propiedad activa
+                    </label>
+                  </div>
                 </div>
 
-                <div className="col-sm-12 col-md-6">
-                  <label htmlFor="edit-email" className="form-label">
-                    Correo electrónico <span aria-hidden="true" className="text-danger">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    id="edit-email"
-                    name="email"
-                    className={`form-control ${errors.email ? 'is-invalid' : ''}`}
-                    value={form.email}
+                <div className="col-sm-12">
+                  <label htmlFor="edit-descripcion" className="form-label">Descripción</label>
+                  <textarea
+                    id="edit-descripcion"
+                    name="descripcion"
+                    className="form-control"
+                    rows={3}
+                    value={form.descripcion}
                     onChange={handleChange}
-                    required
-                    aria-required="true"
-                    aria-describedby={errors.email ? 'err-email' : undefined}
                   />
-                  {errors.email && <div id="err-email" className="invalid-feedback">{errors.email}</div>}
-                </div>
-
-                <div className="col-sm-12 col-md-6">
-                  <label htmlFor="edit-country" className="form-label">
-                    País <span aria-hidden="true" className="text-danger">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="edit-country"
-                    name="country"
-                    className={`form-control ${errors.country ? 'is-invalid' : ''}`}
-                    value={form.country}
-                    onChange={handleChange}
-                    required
-                    aria-required="true"
-                    aria-describedby={errors.country ? 'err-country' : undefined}
-                  />
-                  {errors.country && <div id="err-country" className="invalid-feedback">{errors.country}</div>}
                 </div>
               </div>
 
@@ -196,12 +229,21 @@ export default function EditModal({ user, onSave, onClose }) {
             </div>
 
             <div className="modal-footer">
-              <button type="button" className="btn btn-secondary" onClick={onClose}>
+              <button type="button" className="btn btn-secondary" onClick={onClose} disabled={saving}>
                 Cancelar
               </button>
-              <button type="submit" className="btn btn-primary">
-                <i className="bi bi-floppy me-1" aria-hidden="true"></i>
-                Guardar cambios
+              <button type="submit" className="btn btn-primary" disabled={saving}>
+                {saving ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    Guardando...
+                  </>
+                ) : (
+                  <>
+                    <i className={`bi ${isNew ? 'bi-plus-lg' : 'bi-floppy'} me-1`} aria-hidden="true"></i>
+                    {isNew ? 'Crear propiedad' : 'Guardar cambios'}
+                  </>
+                )}
               </button>
             </div>
           </form>

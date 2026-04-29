@@ -11,12 +11,14 @@ export default function App() {
   const {
     users,
     loading,
+    saving,
     error,
     selectedIds,
     page,
     totalPages,
     editingUser,
     showDeleteModal,
+    showCreateModal,
     applyFilters,
     setPage,
     toggleSelect,
@@ -24,6 +26,9 @@ export default function App() {
     openEdit,
     closeEdit,
     saveEdit,
+    openCreate,
+    closeCreate,
+    submitCreate,
     openDelete,
     closeDelete,
     confirmDelete,
@@ -35,18 +40,35 @@ export default function App() {
     setToast({ message, type });
   }, []);
 
-  const handleSaveEdit = (user) => {
-    saveEdit(user);
-    showToast('Los cambios han sido guardados correctamente.');
+  const handleCreate = async (data) => {
+    const result = await submitCreate(data);
+    if (result.ok) {
+      showToast('Propiedad creada correctamente.');
+    } else {
+      showToast(result.error || 'Error al crear la propiedad.', 'danger');
+    }
   };
 
-  const handleConfirmDelete = () => {
+  const handleSaveEdit = async (casa) => {
+    const result = await saveEdit(casa);
+    if (result.ok) {
+      showToast('Los cambios han sido guardados correctamente.');
+    } else {
+      showToast(result.error || 'Error al guardar los cambios.', 'danger');
+    }
+  };
+
+  const handleConfirmDelete = async () => {
     const count = selectedIds.length;
-    confirmDelete();
-    showToast(`${count === 1 ? '1 usuario eliminado' : `${count} usuarios eliminados`} correctamente.`);
+    const result = await confirmDelete();
+    if (result.ok) {
+      showToast(`${count === 1 ? '1 propiedad eliminada' : `${count} propiedades eliminadas`} correctamente.`);
+    } else {
+      showToast(result.error || 'Error al eliminar.', 'danger');
+    }
   };
 
-  const hasModal = !!editingUser || showDeleteModal;
+  const hasModal = !!editingUser || showDeleteModal || showCreateModal;
 
   return (
     <>
@@ -63,7 +85,7 @@ export default function App() {
       <main className="container pt-5 pb-5">
         <div className="row">
           <div className="col-sm-12 col-md-6">
-            <h1 className="h3 fw-bold">Listado de usuarios</h1>
+            <h1 className="h3 fw-bold">Listado de propiedades</h1>
           </div>
 
           <FilterPanel onApply={applyFilters} />
@@ -77,6 +99,7 @@ export default function App() {
             totalPages={totalPages}
             onToggleSelect={toggleSelect}
             onToggleSelectAll={toggleSelectAll}
+            onAdd={openCreate}
             onEdit={openEdit}
             onDelete={openDelete}
             onPageChange={setPage}
@@ -84,15 +107,21 @@ export default function App() {
         </div>
       </main>
 
+      {showCreateModal && (
+        <div style={{ position: 'relative', zIndex: 1050 }}>
+          <EditModal isNew onSave={handleCreate} onClose={closeCreate} saving={saving} />
+        </div>
+      )}
+
       {editingUser && (
         <div style={{ position: 'relative', zIndex: 1050 }}>
-          <EditModal user={editingUser} onSave={handleSaveEdit} onClose={closeEdit} />
+          <EditModal user={editingUser} onSave={handleSaveEdit} onClose={closeEdit} saving={saving} />
         </div>
       )}
 
       {showDeleteModal && (
         <div style={{ position: 'relative', zIndex: 1050 }}>
-          <DeleteModal count={selectedIds.length} onConfirm={handleConfirmDelete} onClose={closeDelete} />
+          <DeleteModal count={selectedIds.length} onConfirm={handleConfirmDelete} onClose={closeDelete} saving={saving} />
         </div>
       )}
 

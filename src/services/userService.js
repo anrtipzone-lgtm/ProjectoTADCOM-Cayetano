@@ -1,30 +1,33 @@
-const BASE_URL = 'https://randomuser.me/api/';
+const BASE_URL = '/api';
 
-export async function fetchUsers({ nat = '', gender = '', page = 1, results = 10 } = {}) {
-  const params = new URLSearchParams({ results, page, seed: 'upch2024' });
-  if (nat) params.set('nat', nat);
-  if (gender) params.set('gender', gender);
-
-  const response = await fetch(`${BASE_URL}?${params.toString()}`);
+export async function fetchCasas() {
+  const response = await fetch(`${BASE_URL}/casas`);
   if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
-
-  const data = await response.json();
-  return {
-    users: data.results.map(normalizeUser),
-    info: data.info,
-  };
+  return response.json();
 }
 
-function normalizeUser(raw) {
-  return {
-    id: raw.login.uuid,
-    name: `${raw.name.first} ${raw.name.last}`,
-    gender: raw.gender.charAt(0).toUpperCase() + raw.gender.slice(1),
-    address: `${raw.location.street.name} ${raw.location.street.number}`,
-    phone: raw.phone,
-    email: raw.email,
-    country: raw.location.country,
-    nat: raw.nat,
-    picture: raw.picture.medium,
-  };
+export async function updateCasa(id, data) {
+  const response = await fetch(`${BASE_URL}/casas/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+  // API returns 204 No Content on success
+  return data;
+}
+
+export async function createCasa(data) {
+  const response = await fetch(`${BASE_URL}/casas`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+  return response.json();
+}
+
+export async function deleteCasa(id) {
+  const response = await fetch(`${BASE_URL}/casas/${id}`, { method: 'DELETE' });
+  if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
 }

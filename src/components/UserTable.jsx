@@ -10,6 +10,7 @@ export default function UserTable({
   totalPages,
   onToggleSelect,
   onToggleSelectAll,
+  onAdd,
   onEdit,
   onDelete,
   onPageChange,
@@ -33,11 +34,19 @@ export default function UserTable({
           <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div className="d-flex gap-2">
               <button
+                className="btn btn-sm btn-primary px-4"
+                onClick={onAdd}
+                aria-label="Nueva propiedad"
+              >
+                <i className="bi bi-plus-lg me-1" aria-hidden="true"></i>
+                Nueva
+              </button>
+              <button
                 className="btn btn-sm btn-outline-primary px-4"
                 onClick={() => someSelected && onEdit(selectedIds[0])}
                 disabled={selectedIds.length !== 1}
-                aria-label="Editar usuario seleccionado"
-                title={selectedIds.length !== 1 ? 'Seleccione exactamente un usuario para editar' : 'Editar usuario'}
+                aria-label="Editar propiedad seleccionada"
+                title={selectedIds.length !== 1 ? 'Seleccione exactamente una propiedad para editar' : 'Editar propiedad'}
               >
                 <i className="bi bi-pencil me-1" aria-hidden="true"></i>
                 Editar
@@ -46,8 +55,8 @@ export default function UserTable({
                 className="btn btn-sm btn-outline-danger px-4"
                 onClick={() => someSelected && onDelete()}
                 disabled={!someSelected}
-                aria-label="Eliminar usuarios seleccionados"
-                title={!someSelected ? 'Seleccione al menos un usuario para eliminar' : `Eliminar ${selectedIds.length} usuario(s)`}
+                aria-label="Eliminar propiedades seleccionadas"
+                title={!someSelected ? 'Seleccione al menos una propiedad para eliminar' : `Eliminar ${selectedIds.length} propiedad(es)`}
               >
                 <i className="bi bi-trash3 me-1" aria-hidden="true"></i>
                 Eliminar {someSelected && `(${selectedIds.length})`}
@@ -65,13 +74,13 @@ export default function UserTable({
           {loading ? (
             <div className="d-flex justify-content-center align-items-center py-5" aria-live="polite" aria-busy="true">
               <div className="spinner-border text-primary me-3" role="status">
-                <span className="visually-hidden">Cargando usuarios...</span>
+                <span className="visually-hidden">Cargando propiedades...</span>
               </div>
-              <span className="text-muted">Cargando usuarios...</span>
+              <span className="text-muted">Cargando propiedades...</span>
             </div>
           ) : (
             <div className="table-responsive">
-              <table className="table table-hover mb-0" aria-label="Listado de usuarios">
+              <table className="table table-hover mb-0" aria-label="Listado de propiedades">
                 <thead>
                   <tr>
                     <th scope="col" style={{ width: '40px' }}>
@@ -80,17 +89,17 @@ export default function UserTable({
                         type="checkbox"
                         checked={allSelected}
                         onChange={onToggleSelectAll}
-                        aria-label="Seleccionar todos los usuarios"
-                        title="Seleccionar / Deseleccionar todos"
+                        aria-label="Seleccionar todas las propiedades"
+                        title="Seleccionar / Deseleccionar todas"
                       />
                     </th>
-                    <th scope="col" style={{ width: '56px' }}></th>
-                    <th scope="col">Nombre</th>
-                    <th scope="col">Género</th>
                     <th scope="col">Dirección</th>
-                    <th scope="col">Teléfono</th>
-                    <th scope="col">Correo electrónico</th>
-                    <th scope="col">País</th>
+                    <th scope="col">Distrito</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col" className="text-center">Habitaciones</th>
+                    <th scope="col" className="text-end">Área (m²)</th>
+                    <th scope="col" className="text-end">Precio</th>
+                    <th scope="col">Estado</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -98,15 +107,15 @@ export default function UserTable({
                     <tr>
                       <td colSpan={8} className="text-center text-muted py-5">
                         <i className="bi bi-inbox fs-2 d-block mb-2" aria-hidden="true"></i>
-                        No se encontraron usuarios.
+                        No se encontraron propiedades.
                       </td>
                     </tr>
                   ) : (
-                    users.map((user) => (
+                    users.map((casa) => (
                       <UserRow
-                        key={user.id}
-                        user={user}
-                        selected={selectedIds.includes(user.id)}
+                        key={casa.id}
+                        user={casa}
+                        selected={selectedIds.includes(casa.id)}
                         onToggle={onToggleSelect}
                       />
                     ))

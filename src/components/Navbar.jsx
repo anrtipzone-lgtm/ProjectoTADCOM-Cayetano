@@ -11,7 +11,7 @@ export default function Navbar() {
             onError={(e) => { e.currentTarget.style.display = 'none'; }}
           />
           <span className="ms-2 text-white fw-semibold" style={{ fontSize: '1.1rem' }}>
-            UPCH · Gestión de Usuarios
+            UPCH · Gestión de Propiedades
           </span>
         </a>
       </div>
